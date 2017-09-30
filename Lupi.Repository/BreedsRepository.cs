@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Lupi.Repository
 {
-    public class BreedsRepository
+    public class BreedsRepository : IBreedsRepository
     {
         public IEnumerable<Breed> GetAll()
         {

@@ -10,11 +10,11 @@ namespace Lupi.Web.Api.Controllers
 {
     public class BreedsController : ApiController
     {
-        private BreedsBusinessLogic breedsBusinessLogic;
-
-        public BreedsController()
+        private IBreedsBusinessLogic breedsBusinessLogic { get; set; }
+        
+        public BreedsController(IBreedsBusinessLogic breedsLogic)
         {
-            breedsBusinessLogic = new BreedsBusinessLogic();
+            breedsBusinessLogic = breedsLogic;
         }
 
         // GET: api/Breeds

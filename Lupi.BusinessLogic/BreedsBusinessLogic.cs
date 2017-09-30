@@ -5,13 +5,13 @@ using System.Collections.Generic;
 
 namespace Lupi.BusinessLogic
 {
-    public class BreedsBusinessLogic
+    public class BreedsBusinessLogic : IBreedsBusinessLogic
     {
-        public BreedsRepository breedsRepository;
+        public IBreedsRepository breedsRepository;
 
-        public BreedsBusinessLogic()
+        public BreedsBusinessLogic(IBreedsRepository breedsRepository)
         {
-            breedsRepository = new BreedsRepository();
+            this.breedsRepository = breedsRepository;
         }
 
         public IEnumerable<Breed> GetAllBreeds()
