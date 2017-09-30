@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lupi.Repository", "Lupi.Rep
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lupi.DependencyResolver", "Lupi.DependencyResolver\Lupi.DependencyResolver.csproj", "{B996E991-D624-4955-B6F2-0C73225746A3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lupi.Web.Api.Tests", "Lupi.Web.Api.Tests\Lupi.Web.Api.Tests.csproj", "{AC513E54-C7DA-4737-8373-0E57BD0BF167}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{B996E991-D624-4955-B6F2-0C73225746A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B996E991-D624-4955-B6F2-0C73225746A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B996E991-D624-4955-B6F2-0C73225746A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AC513E54-C7DA-4737-8373-0E57BD0BF167}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC513E54-C7DA-4737-8373-0E57BD0BF167}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC513E54-C7DA-4737-8373-0E57BD0BF167}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC513E54-C7DA-4737-8373-0E57BD0BF167}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
