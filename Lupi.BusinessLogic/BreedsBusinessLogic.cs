@@ -28,14 +28,16 @@ namespace Lupi.BusinessLogic
             return breedsRepository.GetByID(id);
         }
 
-        public void Add(Breed breed)
+        public Guid Add(Breed breed)
         {
             if (breed == null)
             {
                 throw new ArgumentNullException(nameof(breed));
             }
-            breed.Id = Guid.NewGuid();
+            Guid id = Guid.NewGuid();
+            breed.Id = id;
             breedsRepository.Add(breed);
+            return id;
         }
 
         public bool Delete(Guid id)

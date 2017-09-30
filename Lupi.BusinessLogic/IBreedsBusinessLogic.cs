@@ -6,7 +6,7 @@ namespace Lupi.BusinessLogic
 {
     public interface IBreedsBusinessLogic
     {
-        void Add(Breed breed);
+        Guid Add(Breed breed);
         bool Delete(Guid id);
         IEnumerable<Breed> GetAllBreeds();
         Breed GetByID(Guid id);

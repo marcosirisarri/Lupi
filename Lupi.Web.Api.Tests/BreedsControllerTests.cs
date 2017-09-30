@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using Lupi.Data.Entities;
 using System.Web.Http;
 using System.Web.Http.Results;
+using System.Linq;
+using System.Net.Http;
 
 namespace Lupi.Web.Api.Tests
 {
@@ -25,10 +27,9 @@ namespace Lupi.Web.Api.Tests
                 .Returns(expectedBreeds);
 
             var controller = new BreedsController(mockBreedsBusinessLogic.Object);
-            
+
             //Act
             IHttpActionResult obtainedResult = controller.Get();
-            // Casteo el resultado HTTP a un resultado OK
             var contentResult = obtainedResult as OkNegotiatedContentResult<IEnumerable<Breed>>;
 
             //Assert
@@ -38,7 +39,219 @@ namespace Lupi.Web.Api.Tests
             Assert.AreEqual(expectedBreeds, contentResult.Content);
         }
 
-        //Función auxiliar
+        [TestMethod]
+        public void GetAllBreedsErrorNotFoundTest()
+        {
+            //Arrange
+            List<Breed> expectedBreeds = null;
+
+            var mockBreedsBusinessLogic = new Mock<IBreedsBusinessLogic>();
+            mockBreedsBusinessLogic
+                .Setup(bl => bl.GetAllBreeds())
+                .Returns(expectedBreeds);
+
+            var controller = new BreedsController(mockBreedsBusinessLogic.Object);
+
+            //Act
+            IHttpActionResult obtainedResult = controller.Get();
+
+            //Assert
+            mockBreedsBusinessLogic.VerifyAll();
+            Assert.IsInstanceOfType(obtainedResult, typeof(NotFoundResult));
+        }
+
+        [TestMethod]
+        public void GetBreedByIdOkTest()
+        {
+            //Arrange
+            var fakeBreed = GetAFakeBreed();
+            var fakeGuid = GetARandomFakeGuid();
+
+            var mockBreedsBusinessLogic = new Mock<IBreedsBusinessLogic>();
+            mockBreedsBusinessLogic
+                .Setup(bl => bl.GetByID(fakeGuid))
+                .Returns(fakeBreed);
+
+            var controller = new BreedsController(mockBreedsBusinessLogic.Object);
+
+            //Act
+            IHttpActionResult obtainedResult = controller.Get(fakeGuid);
+            var contentResult = obtainedResult as OkNegotiatedContentResult<Breed>;
+
+            //Assert
+            mockBreedsBusinessLogic.VerifyAll();
+            Assert.IsNotNull(contentResult);
+            Assert.IsNotNull(contentResult.Content);
+            Assert.AreEqual(fakeGuid, contentResult.Content.Id);
+        }
+
+        [TestMethod]
+        public void GetBreedByIdNotFoundErrorTest()
+        {
+            //Arrange
+            var fakeGuid = Guid.NewGuid();
+
+            var mockBreedsBusinessLogic = new Mock<IBreedsBusinessLogic>();
+            mockBreedsBusinessLogic
+                .Setup(bl => bl.GetByID(fakeGuid))
+                .Returns((Breed)null);
+
+            // Debemos retornar null, es lo que le exigimos al Mock para lograr
+            // que el controller nos de NotFound
+
+            var controller = new BreedsController(mockBreedsBusinessLogic.Object);
+
+            //Act
+            IHttpActionResult obtainedResult = controller.Get(fakeGuid);
+
+            //Assert
+            mockBreedsBusinessLogic.VerifyAll();
+            Assert.IsInstanceOfType(obtainedResult, typeof(NotFoundResult));
+        }
+
+        [TestMethod]
+        public void CreateNewBreedTest()
+        {
+            //Arrange
+            var fakeBreed = GetAFakeBreed();
+
+            var mockBreedsBusinessLogic = new Mock<IBreedsBusinessLogic>();
+            mockBreedsBusinessLogic
+                .Setup(bl => bl.Add(fakeBreed))
+                .Returns(fakeBreed.Id);
+
+            var controller = new BreedsController(mockBreedsBusinessLogic.Object);
+            ConfigureHttpRequest(controller);
+
+            //Act
+            HttpResponseMessage obtainedResult = controller.Post(fakeBreed);
+            //var createdResult = obtainedResult as CreatedAtRouteNegotiatedContentResult<Breed>;
+            
+            //Assert
+            mockBreedsBusinessLogic.VerifyAll();
+            Assert.IsNotNull(obtainedResult);
+            //Assert.AreEqual("DefaultApi", createdResult.RouteName);
+            Assert.AreEqual(fakeBreed.Id, obtainedResult.Content);
+            //Assert.AreEqual(fakeBreed, createdResult.Content);
+        }
+        
+        [TestMethod]
+        public void CreateNullBreedErrorTest()
+        {
+            //Arrange
+            Breed fakeBreed = null;
+
+            var mockBreedsBusinessLogic = new Mock<IBreedsBusinessLogic>();
+            mockBreedsBusinessLogic
+                .Setup(bl => bl.Add(fakeBreed))
+                .Throws(new ArgumentNullException());
+
+            var controller = new BreedsController(mockBreedsBusinessLogic.Object);
+            ConfigureHttpRequest(controller);
+
+            //Act
+            HttpResponseMessage obtainedResult = controller.Post(fakeBreed);
+
+            //Assert
+            mockBreedsBusinessLogic.VerifyAll();
+            Assert.IsInstanceOfType(obtainedResult, typeof(BadRequestErrorMessageResult));
+        }
+
+        [TestMethod]
+        public void UpdateExistingBreedOkTest()
+        {
+            //Arrange
+            var fakeBreed = GetAFakeBreed();
+            var expectedResult = true;
+
+            var mockBreedsBusinessLogic = new Mock<IBreedsBusinessLogic>();
+            mockBreedsBusinessLogic
+                .Setup(bl => bl.Update(It.IsAny<Guid>(), It.IsAny<Breed>()))
+                .Returns(true);
+
+            var controller = new BreedsController(mockBreedsBusinessLogic.Object);
+            ConfigureHttpRequest(controller);
+
+            //Act
+            HttpResponseMessage obtainedResult = controller.Put(new Guid(), fakeBreed);
+            //var createdResult = obtainedResult as CreatedAtRouteNegotiatedContentResult<Breed>;
+
+            //Assert
+            mockBreedsBusinessLogic.VerifyAll();
+            Assert.IsNotNull(obtainedResult);
+            //Assert.AreEqual("DefaultApi", createdResult.RouteName);
+            Assert.AreEqual(expectedResult, obtainedResult.Content);
+            //(Assert.AreEqual(fakeBreed, createdResult.Content);
+        }
+
+        [TestMethod]
+        public void UpdateBreedWithNullIdErrorTest()
+        {
+            //Arrange
+            Breed fakeBreed = null;
+
+            var mockBreedsBusinessLogic = new Mock<IBreedsBusinessLogic>();
+            mockBreedsBusinessLogic
+                .Setup(bl => bl.Update(new Guid(), It.IsAny<Breed>()))
+                .Throws(new ArgumentNullException());
+
+            var controller = new BreedsController(mockBreedsBusinessLogic.Object);
+            ConfigureHttpRequest(controller);
+
+            //Act
+            HttpResponseMessage obtainedResult = controller.Put(new Guid(), fakeBreed);
+
+            //Assert
+            mockBreedsBusinessLogic.VerifyAll();
+            Assert.IsInstanceOfType(obtainedResult, typeof(BadRequestErrorMessageResult));
+        }
+
+        [TestMethod]
+        public void DeleteBreedOkTest()
+        {
+            //Arrange
+
+            Guid fakeGuid = Guid.NewGuid();
+
+            var mockBreedsBusinessLogic = new Mock<IBreedsBusinessLogic>();
+            mockBreedsBusinessLogic
+                .Setup(bl => bl.Delete(It.IsAny<Guid>()))
+                .Returns(It.IsAny<bool>());
+
+            var controller = new BreedsController(mockBreedsBusinessLogic.Object);
+            // Configuramos la Request (dado que estamos utilziando HttpResponseMessage)
+            // Y usando el objeto Request adentro.
+            ConfigureHttpRequest(controller);
+
+            //Act
+            HttpResponseMessage obtainedResult = controller.Delete(fakeGuid);
+
+            //Assert
+            mockBreedsBusinessLogic.VerifyAll();
+            Assert.IsNotNull(obtainedResult);
+        }
+
+        private void ConfigureHttpRequest(BreedsController controller)
+        {
+            controller.Request = new HttpRequestMessage();
+            controller.Configuration = new HttpConfiguration();
+            controller.Configuration.Routes.MapHttpRoute(
+                name: "DefaultApi",
+                routeTemplate: "api/{controller}/{id}",
+                defaults: new { id = RouteParameter.Optional });
+        }
+
+        private Breed GetAFakeBreed()
+        {
+            List<Breed> breeds = GetFakeBreeds().ToList();
+            return breeds.FirstOrDefault();
+        }
+
+        private Guid GetARandomFakeGuid()
+        {
+            return GetAFakeBreed().Id;
+        }
+
         private IEnumerable<Breed> GetFakeBreeds()
         {
             return new List<Breed>
